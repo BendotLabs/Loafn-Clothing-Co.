@@ -64,12 +64,12 @@ stand right now and pointers for picking up each phase.
 
 ## PHASE 6 — Checkout
 
-- [ ] **Step 18** — Create Checkout page.
-- [ ] **Step 19** — Order Summary component.
-- [ ] **Step 20** — Shipping information form.
-- [ ] **Step 21** — Form validation.
-- [ ] **Step 22** — Success page.
-- [ ] **Step 23** — Cancelled checkout page.
+- [x] **Step 18** — Create Checkout page.
+- [x] **Step 19** — Order Summary component.
+- [x] **Step 20** — Shipping information form.
+- [x] **Step 21** — Form validation.
+- [x] **Step 22** — Success page.
+- [x] **Step 23** — Cancelled checkout page.
 
 **Success Condition:** Users can proceed from cart to a complete checkout flow.
 
