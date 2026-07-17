@@ -1,5 +1,6 @@
 import { NavLink, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useCart } from "../context/CartContext";
 
 // Sub-links shown under "Products" in both nav variants.
 const productSubLinks = [
@@ -30,6 +31,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false); // mobile dropdown
   const [desktopProductsOpen, setDesktopProductsOpen] = useState(false);
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
+  const { totalItems, toggleCart } = useCart();
 
   const linkClass = ({ isActive }) =>
     `text-2xl tracking-wide transition-colors ${
@@ -87,10 +89,11 @@ export default function Navbar() {
 
           {/* Cart */}
           <button
+            onClick={toggleCart}
             aria-label="Open cart"
             className="font-mono text-base uppercase tracking-widest text-bone-dim transition-colors hover:text-bone"
           >
-            Cart (0)
+            Cart ({totalItems})
           </button>
         </div>
       </header>
@@ -270,8 +273,10 @@ export default function Navbar() {
                 {link.label}
               </NavLink>
             ))}
-            <button className="text-left font-mono text-xs uppercase tracking-widest text-bone-dim">
-              Cart (0)
+            <button
+            onClick={toggleCart}
+            className="text-left font-mono text-xs uppercase tracking-widest text-bone-dim">
+              Cart ({totalItems})
             </button>
           </nav>
         )}

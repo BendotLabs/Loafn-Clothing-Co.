@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useProduct } from "../hooks/useProducts";
+import { useCart } from "../context/CartContext";
 
 export default function Product() {
   const { slug } = useParams();
@@ -34,6 +35,7 @@ export default function Product() {
 function ProductDetail({ product }) {
   const [size, setSize] = useState(null);
   const [color, setColor] = useState(product.colors[0]);
+  const { addToCart } = useCart();
 
   return (
     <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-6 py-16 md:grid-cols-2 md:py-24">
@@ -107,6 +109,7 @@ function ProductDetail({ product }) {
         {/* Add to cart — UI only for now, see Phase 5 in the roadmap */}
         <button
           disabled={!size}
+          onClick={() => addToCart(product, { color, size, quantity: 1 })}
           className="mt-10 w-full border border-brass py-4 font-mono text-xs uppercase tracking-widest text-bone transition-colors hover:bg-brass hover:text-ink disabled:cursor-not-allowed disabled:border-bone-dim/20 disabled:text-bone-dim/40 disabled:hover:bg-transparent md:w-auto md:px-10"
         >
           {size ? "Add to Cart" : "Select a Size"}

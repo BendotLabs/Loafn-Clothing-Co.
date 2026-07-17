@@ -43,34 +43,127 @@ stand right now and pointers for picking up each phase.
 - [x] **Step 11** — Product detail layout (image, title, description, price,
       size selector, color selector, Add to Cart button) — UI only.
 
+
+***IMPORTANT***
+
+**once you reach the production-oriented phases, consider switching from local JSON to a real database (for example, Supabase or PostgreSQL) before building orders and inventory. Those features become much more realistic when they're backed by persistent data rather than static files.**
+
+**Services to implement: Supabase, Stripe, Clerk/Auth.js, Resend, Cloudinary, PostHog Analytics, Shippo/EasyPost**
+
+
 ## PHASE 5 — Shopping Cart
 
-- [ ] **Step 12** — Cart Context (product ID + quantity).
-- [ ] **Step 13** — Cart Drawer (products, quantities, total).
-- [ ] **Step 14** — Connect Add to Cart button (add / remove / update qty).
+- [x] **Step 12** — Create Cart Context (state, add/remove/update quantity).
+- [x] **Step 13** — Connect "Add to Cart" button.
+- [x] **Step 14** — Build Cart Drawer.
+- [x] **Step 15** — Cart badge in navbar.
+- [x] **Step 16** — Persist cart using Local Storage.
+- [x] **Step 17** — Empty cart state.
 
-## PHASE 6 — Checkout Experience
+**Success Condition:** Cart behaves exactly like a real online store.
 
-- [ ] **Step 15** — Checkout page form (name, email, address, city, state,
-      ZIP) — no backend, no payment, UI only.
-- [ ] **Step 16** — Order Summary (items, quantities, shipping, total).
+## PHASE 6 — Checkout
 
-## PHASE 7 — Polish
+- [ ] **Step 18** — Create Checkout page.
+- [ ] **Step 19** — Order Summary component.
+- [ ] **Step 20** — Shipping information form.
+- [ ] **Step 21** — Form validation.
+- [ ] **Step 22** — Success page.
+- [ ] **Step 23** — Cancelled checkout page.
 
-- [ ] **Step 17** — Responsive design check (mobile, tablet, desktop).
-- [ ] **Step 18** — Animations (hover effects, fade-ins, page transitions).
-- [ ] **Step 19** — Loading states (skeleton cards, spinners).
-- [ ] **Step 20** — Error states (product not found, empty cart).
+**Success Condition:** Users can proceed from cart to a complete checkout flow.
 
-## PHASE 8 — Portfolio Upgrades
+## PHASE 7 — Authentication
 
-- [ ] **Step 21** — Wishlist system.
-- [ ] **Step 22** — Search bar (search products by name).
-- [ ] **Step 23** — Sort products (price low–high, high–low, newest).
-- [ ] **Step 24** — Journal page (design philosophy, fabric choices,
-      collection inspiration).
-- [ ] **Step 25** — Deploy on Vercel, add to portfolio, GitHub README,
-      screenshots.
+- [ ] **Step 24** — User registration.
+- [ ] **Step 25** — Login.
+- [ ] **Step 26** — Logout.
+- [ ] **Step 27** — Protected account page.
+- [ ] **Step 28** — Password reset email.
+
+**Success Condition:** Users have real accounts.
+
+## PHASE 8 — Stripe
+
+- [ ] **Step 29** — Create Stripe account.
+- [ ] **Step 30** — Install Stripe SDK.
+- [ ] **Step 31** — Stripe test mode checkout.
+- [ ] **Step 32** — Success redirect.
+- [ ] **Step 33** — Cancel redirect.
+- [ ] **Step 34** — Learn Stripe webhooks.
+- [ ] **Step 35** — Store completed orders.
+
+**Success Condition:** Fake purchases complete exactly like a production store.
+
+## PHASE 9 — Orders
+
+- [ ] **Step 36** — Orders database.
+- [ ] **Step 37** — Order model.
+- [ ] **Step 38** — Order history page.
+- [ ] **Step 39** — Individual order details.
+- [ ] **Step 40** — Purchase confirmation screen.
+
+**Success Condition:** Orders permanently exist.
+
+## PHASE 10 — Emails
+
+- [ ] **Step 41** — Email service integration.
+- [ ] **Step 42** — Order confirmation email.
+- [ ] **Step 43** — Password reset email.
+- [ ] **Step 44** — Shipping notification email.
+
+**Success Condition:** Every important action generates a real email.
+
+## PHASE 11 — Admin Dashboard
+
+- [ ] **Step 45** — Dashboard layout.
+- [ ] **Step 46** — Product management.
+- [ ] **Step 47** — Order management.
+- [ ] **Step 48** — Inventory management.
+- [ ] **Step 49** — Customer list.
+
+**Success Condition:** Store owner can manage the business.
+
+## PHASE 12 — Inventory
+
+- [ ] **Step 50** — Product variants.
+- [ ] **Step 51** — Size inventory.
+- [ ] **Step 52** — Color inventory.
+- [ ] **Step 53** — Out-of-stock handling.
+- [ ] **Step 54** — Low-stock indicators.
+
+**Success Condition:** Inventory behaves like a real clothing business.
+
+## PHASE 13 — Shipping
+
+- [ ] **Step 55** — Shipping zones.
+- [ ] **Step 56** — Shipping rate calculation.
+- [ ] **Step 57** — Shipping API integration.
+- [ ] **Step 58** — Generate shipping labels
+- [ ] **Step 59** — Tracking numbers.
+
+**Success Condition:** Orders are ready to ship.
+
+## PHASE 14 — Customer Experience
+
+- [ ] **Step 60** — Wishlist.
+- [ ] **Step 61** — Search.
+- [ ] **Step 62** — Sorting.
+- [ ] **Step 63** — Filtering improvements.
+- [ ] **Step 64** — Product recommendations.
+- [ ] **Step 65** — Recently viewed products.
+
+## PHASE 15 — Production Polish
+
+- [ ] **Step 66** — Mobile optimization.
+- [ ] **Step 67** — Loading states.
+- [ ] **Step 68** — Error pages.
+- [ ] **Step 69** — Animations.
+- [ ] **Step 70** — Accessibility improvements.
+- [ ] **Step 71** — SEO metadata.
+- [ ] **Step 72** — Analytics integration.
+- [ ] **Step 73** — Deploy production version.
+- [ ] **Step 74** — Portfolio case study.
 
 ---
 
