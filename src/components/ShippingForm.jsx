@@ -1,3 +1,6 @@
+/* Reintroduce a pre-checkout step later (e.g. capturing an account-linked
+shipping address before handoff). */
+
 import { useState } from "react";
 
 const initialForm = {

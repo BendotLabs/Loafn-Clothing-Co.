@@ -75,33 +75,33 @@ stand right now and pointers for picking up each phase.
 
 ## PHASE 7 — Authentication
 
-- [ ] **Step 24** — User registration.
-- [ ] **Step 25** — Login.
-- [ ] **Step 26** — Logout.
-- [ ] **Step 27** — Protected account page.
-- [ ] **Step 28** — Password reset email.
+- [x] **Step 24** — User registration.
+- [x] **Step 25** — Login.
+- [x] **Step 26** — Logout.
+- [x] **Step 27** — Protected account page.
+- [x] **Step 28** — Password reset email.
 
 **Success Condition:** Users have real accounts.
 
 ## PHASE 8 — Stripe
 
-- [ ] **Step 29** — Create Stripe account.
-- [ ] **Step 30** — Install Stripe SDK.
-- [ ] **Step 31** — Stripe test mode checkout.
-- [ ] **Step 32** — Success redirect.
-- [ ] **Step 33** — Cancel redirect.
-- [ ] **Step 34** — Learn Stripe webhooks.
-- [ ] **Step 35** — Store completed orders.
+- [x] **Step 29** — Create Stripe account.
+- [x] **Step 30** — Install Stripe SDK.
+- [x] **Step 31** — Stripe test mode checkout.
+- [x] **Step 32** — Success redirect.
+- [x] **Step 33** — Cancel redirect.
+- [x] **Step 34** — Learn Stripe webhooks.
+- [x] **Step 35** — Store completed orders.
 
 **Success Condition:** Fake purchases complete exactly like a production store.
 
 ## PHASE 9 — Orders
 
-- [ ] **Step 36** — Orders database.
-- [ ] **Step 37** — Order model.
-- [ ] **Step 38** — Order history page.
-- [ ] **Step 39** — Individual order details.
-- [ ] **Step 40** — Purchase confirmation screen.
+- [x] **Step 36** — Orders database.
+- [x] **Step 37** — Order model.
+- [x] **Step 38** — Order history page.
+- [x] **Step 39** — Individual order details.
+- [x] **Step 40** — Purchase confirmation screen.
 
 **Success Condition:** Orders permanently exist.
 

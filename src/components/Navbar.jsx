@@ -1,6 +1,7 @@
 import { NavLink, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 // Sub-links shown under "Products" in both nav variants.
 const productSubLinks = [
@@ -32,6 +33,7 @@ export default function Navbar() {
   const [desktopProductsOpen, setDesktopProductsOpen] = useState(false);
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
   const { totalItems, toggleCart } = useCart();
+  const { user } = useAuth();
 
   const linkClass = ({ isActive }) =>
     `text-2xl tracking-wide transition-colors ${
@@ -87,14 +89,23 @@ export default function Navbar() {
             Loafn'
           </NavLink>
 
-          {/* Cart */}
-          <button
-            onClick={toggleCart}
-            aria-label="Open cart"
-            className="font-mono text-base uppercase tracking-widest text-bone-dim transition-colors hover:text-bone"
-          >
-            Cart ({totalItems})
-          </button>
+          <div className="flex items-center gap-6">
+            <NavLink
+              to={user ? "/account" : "/login"}
+              className="font-mono text-base uppercase tracking-widest text-bone-dim transition-colors hover:text-bone"
+            >
+              {user ? "Account" : "Sign In"}
+            </NavLink>
+
+            {/* Cart */}
+            <button
+              onClick={toggleCart}
+              aria-label="Open cart"
+              className="font-mono text-base uppercase tracking-widest text-bone-dim transition-colors hover:text-bone"
+            >
+              Cart ({totalItems})
+            </button>
+          </div>
         </div>
       </header>
 
@@ -273,6 +284,18 @@ export default function Navbar() {
                 {link.label}
               </NavLink>
             ))}
+            <NavLink
+              to={user ? "/account" : "/login"}
+              onClick={() => setMobileOpen(false)}
+              className={mobileLinkClass}
+            >
+              {user ? "Account" : "Sign In"}
+            </NavLink>
+            <button
+            onClick={toggleCart}
+            className="text-left font-mono text-xs uppercase tracking-widest text-bone-dim">
+              Cart ({totalItems})
+            </button>
             <button
             onClick={toggleCart}
             className="text-left font-mono text-xs uppercase tracking-widest text-bone-dim">

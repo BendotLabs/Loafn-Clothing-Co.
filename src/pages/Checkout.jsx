@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import ShippingForm from "../components/ShippingForm";
+import { useAuth } from "../context/AuthContext";
+import { createCheckoutSession } from "../lib/checkout";
 import OrderSummary from "../components/OrderSummary";
 
 export default function Checkout() {
-  const { items, clearCart } = useCart();
-  const navigate = useNavigate();
+  const { items } = useCart();
+  const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   if (items.length === 0) {
     return (
@@ -29,37 +31,57 @@ export default function Checkout() {
     );
   }
 
-  function handlePlaceOrder(shippingInfo) {
+  async function handleCheckout() {
+    setError("");
     setSubmitting(true);
-
-    // Mock order creation — Phase 8 swaps this for a real Stripe + backend flow.
-    const orderNumber = `LFN-${Date.now().toString().slice(-6)}`;
-
-    setTimeout(() => {
-      clearCart();
-      navigate("/checkout/success", {
-        state: { orderNumber, shippingInfo },
-      });
-    }, 600); // brief delay so "Placing Order..." reads as real feedback
+    try {
+      const url = await createCheckoutSession(items, user?.id);
+      window.location.href = url;
+    } catch (err) {
+      setError(err.message);
+      setSubmitting(false);
+    }
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-16 md:py-24">
+    <div className="mx-auto max-w-2xl px-6 py-16 md:py-24">
       <header className="mb-12">
         <p className="font-mono text-xs uppercase tracking-widest text-bone-dim/60">
           Checkout
         </p>
-        <h1 className="mt-2 font-display text-4xl text-bone">
-          Almost there.
-        </h1>
+        <h1 className="mt-2 font-display text-4xl text-bone">Almost there.</h1>
+        <p className="mt-4 text-sm text-bone-dim">
+          Shipping and payment are handled securely on Stripe's checkout page.
+        </p>
+
+        {!user && (
+          <p className="mt-4 font-mono text-xs uppercase tracking-widest text-bone-dim/60">
+            Have an account?{" "}
+            <Link to="/login" className="text-brass-light hover:text-brass">
+              Sign in
+            </Link>{" "}
+            or{" "}
+            <Link to="/register" className="text-brass-light hover:text-brass">
+              create one
+            </Link>{" "}
+            to track this order &mdash; totally optional.
+          </p>
+        )}
       </header>
 
-      <div className="grid grid-cols-1 gap-12 md:grid-cols-[1.2fr_1fr]">
-        <ShippingForm onSubmit={handlePlaceOrder} submitting={submitting} />
-        <OrderSummary />
-      </div>
+      <OrderSummary />
 
-      <div className="mt-10">
+      {error && <p className="mt-6 font-mono text-xs text-clay">{error}</p>}
+
+      <button
+        onClick={handleCheckout}
+        disabled={submitting}
+        className="mt-8 w-full border border-brass py-4 font-mono text-xs uppercase tracking-widest text-bone transition-colors hover:bg-brass hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {submitting ? "Redirecting to Payment..." : "Proceed to Payment"}
+      </button>
+
+      <div className="mt-6">
         <Link
           to="/products"
           className="font-mono text-xs uppercase tracking-widest text-bone-dim/60 hover:text-bone"

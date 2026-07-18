@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer, useState } from "react";
+import { createContext, useContext, useEffect, useReducer, useState, useCallback } from "react";
 
 const CartContext = createContext(null);
 const STORAGE_KEY = "loafn-cart";
@@ -61,7 +61,7 @@ export function CartProvider({ children }) {
     }
   }, [items]);
 
-  function addToCart(product, { color, size, quantity = 1 }) {
+  const addToCart = useCallback((product, { color, size, quantity = 1 }) => {
     const cartItemId = makeCartItemId(product.slug, color, size);
     dispatch({
       type: "ADD_ITEM",
@@ -77,19 +77,23 @@ export function CartProvider({ children }) {
       },
     });
     setIsCartOpen(true); // open the drawer so adding feels confirmed
-  }
+  }, []);
 
-  function removeFromCart(cartItemId) {
+  const removeFromCart = useCallback((cartItemId) => {
     dispatch({ type: "REMOVE_ITEM", cartItemId });
-  }
+  }, []);
 
-  function updateQuantity(cartItemId, quantity) {
+  const updateQuantity = useCallback((cartItemId, quantity) => {
     dispatch({ type: "UPDATE_QUANTITY", cartItemId, quantity });
-  }
+  }, []);
 
-  function clearCart() {
+  const clearCart = useCallback(() => {
     dispatch({ type: "CLEAR_CART" });
-  }
+  }, []);
+
+  const openCart = useCallback(() => setIsCartOpen(true), []);
+  const closeCart = useCallback(() => setIsCartOpen(false), []);
+  const toggleCart = useCallback(() => setIsCartOpen((v) => !v), []);
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
   const totalPrice = items.reduce((sum, i) => sum + i.quantity * i.price, 0);
@@ -103,9 +107,9 @@ export function CartProvider({ children }) {
     totalItems,
     totalPrice,
     isCartOpen,
-    openCart: () => setIsCartOpen(true),
-    closeCart: () => setIsCartOpen(false),
-    toggleCart: () => setIsCartOpen((v) => !v),
+    openCart,
+    closeCart,
+    toggleCart,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
