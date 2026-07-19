@@ -107,10 +107,10 @@ stand right now and pointers for picking up each phase.
 
 ## PHASE 10 — Emails
 
-- [ ] **Step 41** — Email service integration.
-- [ ] **Step 42** — Order confirmation email.
-- [ ] **Step 43** — Password reset email.
-- [ ] **Step 44** — Shipping notification email.
+- [x] **Step 41** — Email service integration.
+- [x] **Step 42** — Order confirmation email. (built, needs wiring to the real checkout flow)
+- [x] **Step 43** — Password reset email.
+- [ ] **Step 44** — Shipping notification email. *deffered to phase 13*
 
 **Success Condition:** Every important action generates a real email.
 
@@ -142,6 +142,8 @@ stand right now and pointers for picking up each phase.
 - [ ] **Step 58** — Generate shipping labels
 - [ ] **Step 59** — Tracking numbers.
 
+**RETURN TO STEP 44**
+
 **Success Condition:** Orders are ready to ship.
 
 ## PHASE 14 — Customer Experience
@@ -169,3 +171,5 @@ stand right now and pointers for picking up each phase.
 
 **Success condition:** a visitor can browse products, view product details,
 add items to a cart, and complete a mock checkout experience.
+
+**Email uses Resend in sandbox mode for demo purposes; A verified domain would be swapped in for production.**

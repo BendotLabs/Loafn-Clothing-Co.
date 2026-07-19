@@ -50,8 +50,9 @@ Deno.serve(async (req) => {
     }
 
     const items = JSON.parse(session.metadata?.items || "[]");
+    let orderItems: any[] = [];
     if (items.length > 0) {
-      const orderItems = items.map((item: any) => ({
+      orderItems = items.map((item: any) => ({
         order_id: order.id,
         product_slug: item.slug,
         name: item.name,
@@ -64,6 +65,31 @@ Deno.serve(async (req) => {
 
       const { error: itemsError } = await supabaseAdmin.from("order_items").insert(orderItems);
       if (itemsError) console.error("Failed to insert order items:", itemsError);
+    }
+
+    // Fire the order confirmation email. Wrapped so a Resend/email failure
+    // never causes this webhook to return non-200 to Stripe — a non-200
+    // triggers a Stripe retry, which would attempt to insert this order again.
+    try {
+      const { error: emailError } = await supabaseAdmin.functions.invoke(
+        "send-order-confirmation",
+        {
+          body: {
+            to: session.customer_details?.email,
+            orderId: order.id,
+            customerName: session.customer_details?.name || "there",
+            items: orderItems.map((item) => ({
+              name: item.name,
+              qty: item.quantity,
+              price: item.price,
+            })),
+            total: order.amount_total,
+          },
+        }
+      );
+      if (emailError) console.error("Failed to send order confirmation email:", emailError);
+    } catch (err) {
+      console.error("Order confirmation email threw:", err);
     }
   }
 

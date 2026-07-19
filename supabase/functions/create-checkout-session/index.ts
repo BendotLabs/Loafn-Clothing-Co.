@@ -1,9 +1,17 @@
 import Stripe from "https://esm.sh/stripe@17.7.0?target=denonext";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2023-10-16",
   httpClient: Stripe.createFetchHttpClient(),
 });
+
+// Service-role client used only to look up the logged-in user's email server-side.
+// Never trust an email passed from the client for an authenticated session.
+const supabaseAdmin = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -52,6 +60,20 @@ Deno.serve(async (req) => {
       quantity: i.quantity,
     }));
 
+    // Logged-in users get their email locked to their account (looked up
+    // server-side, never trusted from the client). Guests get an editable
+    // email field on the Stripe Checkout page — customer_email is simply
+    // omitted, so Stripe collects it themselves.
+    let customerEmail: string | undefined;
+    if (userId) {
+      const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
+      if (error) {
+        console.error("Failed to look up user for checkout email lock:", error);
+      } else {
+        customerEmail = data.user?.email;
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items,
@@ -68,6 +90,7 @@ Deno.serve(async (req) => {
         },
       ],
       client_reference_id: userId || undefined, // links session to a logged-in user, omitted for guests
+      customer_email: customerEmail, // locked for logged-in users, editable for guests
       metadata: {
         items: JSON.stringify(itemsSnapshot),
       },
