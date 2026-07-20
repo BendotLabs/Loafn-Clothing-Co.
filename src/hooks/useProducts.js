@@ -32,6 +32,13 @@ function fetchProducts() {
   return fetchPromise;
 }
 
+// Call this after any admin create/update/delete so the storefront's
+// cached product list doesn't keep serving stale data until a full reload.
+export function invalidateProductsCache() {
+  cachedProducts = null;
+  fetchPromise = null;
+}
+
 export function useProducts() {
   const [products, setProducts] = useState(cachedProducts || []);
 

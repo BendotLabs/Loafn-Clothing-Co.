@@ -116,11 +116,11 @@ stand right now and pointers for picking up each phase.
 
 ## PHASE 11 — Admin Dashboard
 
-- [ ] **Step 45** — Dashboard layout.
-- [ ] **Step 46** — Product management.
-- [ ] **Step 47** — Order management.
-- [ ] **Step 48** — Inventory management.
-- [ ] **Step 49** — Customer list.
+- [x] **Step 45** — Dashboard layout.
+- [x] **Step 46** — Product management.
+- [x] **Step 47** — Order management.
+- [ ] **Step 48** — Inventory management. *deffered to phase 12*
+- [x] **Step 49** — Customer list.
 
 **Success Condition:** Store owner can manage the business.
 
@@ -131,6 +131,8 @@ stand right now and pointers for picking up each phase.
 - [ ] **Step 52** — Color inventory.
 - [ ] **Step 53** — Out-of-stock handling.
 - [ ] **Step 54** — Low-stock indicators.
+
+**RETURN TO STEP 48**
 
 **Success Condition:** Inventory behaves like a real clothing business.
 
