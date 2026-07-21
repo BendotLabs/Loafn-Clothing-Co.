@@ -1,10 +1,6 @@
 import { supabase } from "./supabaseClient";
 import { invalidateProductsCache } from "../hooks/useProducts";
-
-// Writes here rely entirely on the RLS policies already set on `products`
-// (admin insert/update/delete, public select) — this file doesn't do any
-// permission checking itself. If a non-admin somehow calls these, Supabase
-// rejects the write at the database level regardless.
+import { ensureVariants } from "./adminVariants";
 
 export async function createProduct(product) {
   const { data, error } = await supabase
@@ -24,7 +20,10 @@ export async function createProduct(product) {
     .select()
     .single();
 
-  if (!error) invalidateProductsCache();
+  if (!error) {
+    invalidateProductsCache();
+    await ensureVariants(data.id, product.colors, product.sizes);
+  }
   return { data, error };
 }
 
@@ -46,7 +45,10 @@ export async function updateProduct(id, product) {
     .select()
     .single();
 
-  if (!error) invalidateProductsCache();
+  if (!error) {
+    invalidateProductsCache();
+    await ensureVariants(id, product.colors, product.sizes);
+  }
   return { data, error };
 }
 

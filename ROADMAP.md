@@ -119,18 +119,18 @@ stand right now and pointers for picking up each phase.
 - [x] **Step 45** — Dashboard layout.
 - [x] **Step 46** — Product management.
 - [x] **Step 47** — Order management.
-- [ ] **Step 48** — Inventory management. *deffered to phase 12*
+- [x] **Step 48** — Inventory management. *deffered to phase 12*
 - [x] **Step 49** — Customer list.
 
 **Success Condition:** Store owner can manage the business.
 
 ## PHASE 12 — Inventory
 
-- [ ] **Step 50** — Product variants.
-- [ ] **Step 51** — Size inventory.
-- [ ] **Step 52** — Color inventory.
-- [ ] **Step 53** — Out-of-stock handling.
-- [ ] **Step 54** — Low-stock indicators.
+- [x] **Step 50** — Product variants.
+- [x] **Step 51** — Size inventory.
+- [x] **Step 52** — Color inventory.
+- [x] **Step 53** — Out-of-stock handling.
+- [x] **Step 54** — Low-stock indicators.
 
 **RETURN TO STEP 48**
 

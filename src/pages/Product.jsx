@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useProduct } from "../hooks/useProducts";
+import { useProduct, useVariants } from "../hooks/useProducts";
 import { useCart } from "../context/CartContext";
+
+const LOW_STOCK_THRESHOLD = 3;
 
 export default function Product() {
   const { slug } = useParams();
@@ -36,6 +38,27 @@ function ProductDetail({ product }) {
   const [size, setSize] = useState(null);
   const [color, setColor] = useState(product.colors[0]);
   const { addToCart } = useCart();
+  const variants = useVariants(product.id);
+
+  // Returns null if no variant row exists yet (pre-migration product) —
+  // treated as "unknown, assume in stock" rather than blocking checkout
+  // on data that hasn't been generated. Admin can backfill via
+  // AdminInventory by re-saving the product.
+  function stockFor(c, s) {
+    const v = variants.find((v) => v.color === c && v.size === s);
+    return v ? v.stock : null;
+  }
+
+  const currentStock = stockFor(color, size);
+  const canAddToCart = size && (currentStock === null || currentStock > 0);
+
+  function handleColorChange(c) {
+    setColor(c);
+    // Switching colors can put the currently-selected size out of stock
+    // for the new color — drop the selection rather than let Add to Cart
+    // silently target a 0-stock combo.
+    if (size && stockFor(c, size) === 0) setSize(null);
+  }
 
   return (
     <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-6 py-16 md:grid-cols-2 md:py-24">
@@ -71,7 +94,7 @@ function ProductDetail({ product }) {
             {product.colors.map((c) => (
               <button
                 key={c}
-                onClick={() => setColor(c)}
+                onClick={() => handleColorChange(c)}
                 className={`border px-4 py-2 font-mono text-xs uppercase tracking-widest transition-colors ${
                   color === c
                     ? "border-brass bg-brass text-ink"
@@ -90,29 +113,41 @@ function ProductDetail({ product }) {
             Size {size ? `— ${size}` : ""}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            {product.sizes.map((s) => (
-              <button
-                key={s}
-                onClick={() => setSize(s)}
-                className={`h-11 min-w-11 border px-3 font-mono text-xs uppercase tracking-widest transition-colors ${
-                  size === s
-                    ? "border-brass bg-brass text-ink"
-                    : "border-bone-dim/30 text-bone-dim hover:border-bone-dim hover:text-bone"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
+            {product.sizes.map((s) => {
+              const stock = stockFor(color, s);
+              const outOfStock = stock === 0;
+              return (
+                <button
+                  key={s}
+                  disabled={outOfStock}
+                  onClick={() => setSize(s)}
+                  className={`h-11 min-w-11 border px-3 font-mono text-xs uppercase tracking-widest transition-colors ${
+                    size === s
+                      ? "border-brass bg-brass text-ink"
+                      : outOfStock
+                      ? "cursor-not-allowed border-bone-dim/10 text-bone-dim/30 line-through"
+                      : "border-bone-dim/30 text-bone-dim hover:border-bone-dim hover:text-bone"
+                  }`}
+                >
+                  {s}
+                </button>
+              );
+            })}
           </div>
+          {currentStock !== null && currentStock > 0 && currentStock <= LOW_STOCK_THRESHOLD && (
+            <p className="mt-3 font-mono text-xs text-brass-light">
+              Only {currentStock} left
+            </p>
+          )}
         </div>
 
-        {/* Add to cart — UI only for now, see Phase 5 in the roadmap */}
+        {/* Add to cart */}
         <button
-          disabled={!size}
+          disabled={!canAddToCart}
           onClick={() => addToCart(product, { color, size, quantity: 1 })}
           className="mt-10 w-full border border-brass py-4 font-mono text-xs uppercase tracking-widest text-bone transition-colors hover:bg-brass hover:text-ink disabled:cursor-not-allowed disabled:border-bone-dim/20 disabled:text-bone-dim/40 disabled:hover:bg-transparent md:w-auto md:px-10"
         >
-          {size ? "Add to Cart" : "Select a Size"}
+          {!size ? "Select a Size" : currentStock === 0 ? "Out of Stock" : "Add to Cart"}
         </button>
       </div>
     </div>

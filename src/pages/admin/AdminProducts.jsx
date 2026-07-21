@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useProducts } from "../../hooks/useProducts";
+import { useProducts, useStockTotals } from "../../hooks/useProducts";
 import { createProduct, updateProduct, deleteProduct } from "../../lib/adminProducts";
 import ProductForm from "../../components/admin/ProductForm";
 
 export default function AdminProducts() {
   const products = useProducts(); // same hook the storefront uses — reads are public
+  const stockTotals = useStockTotals();
   const [mode, setMode] = useState(null); // null | "create" | product object being edited
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -92,33 +93,46 @@ export default function AdminProducts() {
               <th className="py-3 pr-4">Price</th>
               <th className="py-3 pr-4">Colors</th>
               <th className="py-3 pr-4">Sizes</th>
+              <th className="py-3 pr-4">Total Stock</th>
               <th className="py-3 pr-4"></th>
             </tr>
           </thead>
           <tbody>
-            {products.map((p) => (
-              <tr key={p.id} className="border-b border-bone-dim/10 text-bone-dim">
-                <td className="py-3 pr-4 text-bone">{p.name}</td>
-                <td className="py-3 pr-4">{p.category}</td>
-                <td className="py-3 pr-4 font-mono">${p.price.toFixed(2)}</td>
-                <td className="py-3 pr-4">{p.colors?.join(", ")}</td>
-                <td className="py-3 pr-4">{p.sizes?.join(", ")}</td>
-                <td className="py-3 pr-4 text-right">
-                  <button
-                    onClick={() => setMode(p)}
-                    className="font-mono text-xs uppercase tracking-widest text-brass-light hover:text-brass"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(p)}
-                    className="ml-4 font-mono text-xs uppercase tracking-widest text-clay hover:text-clay/70"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {products.map((p) => {
+              const total = stockTotals[p.id];
+              return (
+                <tr key={p.id} className="border-b border-bone-dim/10 text-bone-dim">
+                  <td className="py-3 pr-4 text-bone">{p.name}</td>
+                  <td className="py-3 pr-4">{p.category}</td>
+                  <td className="py-3 pr-4 font-mono">${p.price.toFixed(2)}</td>
+                  <td className="py-3 pr-4">{p.colors?.join(", ")}</td>
+                  <td className="py-3 pr-4">{p.sizes?.join(", ")}</td>
+                  <td className="py-3 pr-4 font-mono">
+                    {total === undefined ? (
+                      <span className="text-bone-dim/40">—</span>
+                    ) : (
+                      <span className={total === 0 ? "text-clay" : ""}>
+                        Total stock: {total}
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-3 pr-4 text-right">
+                    <button
+                      onClick={() => setMode(p)}
+                      className="font-mono text-xs uppercase tracking-widest text-brass-light hover:text-brass"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p)}
+                      className="ml-4 font-mono text-xs uppercase tracking-widest text-clay hover:text-clay/70"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
