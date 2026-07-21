@@ -61,23 +61,39 @@ export function CartProvider({ children }) {
     }
   }, [items]);
 
-  const addToCart = useCallback((product, { color, size, quantity = 1 }) => {
+  // `availableStock` is optional — Product.jsx already knows the stock for
+  // the selected color/size (it computed it to disable the button), so it
+  // passes that number through here rather than CartContext refetching it.
+  // Returns a status so the caller (Product.jsx) can show "only added 2 of
+  // the 5 you wanted" type feedback instead of the request silently
+  // succeeding or failing.
+  const addToCart = useCallback((product, { color, size, quantity = 1, availableStock = null }) => {
     const cartItemId = makeCartItemId(product.slug, color, size);
+
+    if (availableStock !== null) {
+      const alreadyInCart = items.find((i) => i.cartItemId === cartItemId)?.quantity || 0;
+      const room = availableStock - alreadyInCart;
+
+      if (room <= 0) {
+        return { status: "out_of_stock" };
+      }
+      if (quantity > room) {
+        dispatch({
+          type: "ADD_ITEM",
+          item: { cartItemId, slug: product.slug, name: product.name, price: product.price, image: product.image, color, size, quantity: room },
+        });
+        setIsCartOpen(true);
+        return { status: "clamped", added: room };
+      }
+    }
+
     dispatch({
       type: "ADD_ITEM",
-      item: {
-        cartItemId,
-        slug: product.slug,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        color,
-        size,
-        quantity,
-      },
+      item: { cartItemId, slug: product.slug, name: product.name, price: product.price, image: product.image, color, size, quantity },
     });
-    setIsCartOpen(true); // open the drawer so adding feels confirmed
-  }, []);
+    setIsCartOpen(true);
+    return { status: "added", added: quantity };
+  }, [items]);
 
   const removeFromCart = useCallback((cartItemId) => {
     dispatch({ type: "REMOVE_ITEM", cartItemId });

@@ -1,6 +1,3 @@
-/* Reintroduce a pre-checkout step later (e.g. capturing an account-linked
-shipping address before handoff). */
-
 import { useState } from "react";
 
 const initialForm = {
@@ -30,8 +27,14 @@ function validate(form) {
   return errors;
 }
 
-export default function ShippingForm({ onSubmit, submitting }) {
-  const [form, setForm] = useState(initialForm);
+export default function ShippingForm({
+  onSubmit,
+  submitting,
+  submitLabel = "Continue",
+  note = null,
+  initialValues = null,
+}) {
+  const [form, setForm] = useState(initialValues || initialForm);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
@@ -130,17 +133,18 @@ export default function ShippingForm({ onSubmit, submitting }) {
         />
       </div>
 
-      {/* Payment collection arrives with Stripe in a later phase — this is a mock submit */}
-      <p className="mt-2 font-mono text-[11px] uppercase tracking-widest text-bone-dim/40">
-        Payment processing not yet connected &mdash; placing this order won't charge a card.
-      </p>
+      {note && (
+        <p className="mt-2 font-mono text-[11px] uppercase tracking-widest text-bone-dim/40">
+          {note}
+        </p>
+      )}
 
       <button
         type="submit"
         disabled={submitting}
         className="mt-2 w-full border border-brass py-4 font-mono text-xs uppercase tracking-widest text-bone transition-colors hover:bg-brass hover:text-ink disabled:cursor-not-allowed disabled:opacity-50 md:w-auto md:px-10"
       >
-        {submitting ? "Placing Order..." : "Place Order"}
+        {submitting ? "Calculating..." : submitLabel}
       </button>
     </form>
   );

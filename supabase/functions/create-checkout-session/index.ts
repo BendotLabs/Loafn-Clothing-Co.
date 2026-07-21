@@ -6,8 +6,6 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   httpClient: Stripe.createFetchHttpClient(),
 });
 
-// Service-role client used only to look up the logged-in user's email server-side.
-// Never trust an email passed from the client for an authenticated session.
 const supabaseAdmin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -24,7 +22,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { items, successUrl, cancelUrl, userId } = await req.json();
+    const { items, successUrl, cancelUrl, userId, shippingRate } = await req.json();
 
     if (!items || items.length === 0) {
       return new Response(JSON.stringify({ error: "Cart is empty." }), {
@@ -46,10 +44,6 @@ Deno.serve(async (req) => {
       quantity: item.quantity,
     }));
 
-    // Compact cart snapshot so the webhook can rebuild order_items without
-    // a second database round trip. Metadata values are capped at 500
-    // characters each — fine for a handful of items, but a very large
-    // cart could exceed it. Revisit if that becomes a real constraint.
     const itemsSnapshot = items.map((i: any) => ({
       slug: i.slug,
       name: i.name,
@@ -60,10 +54,6 @@ Deno.serve(async (req) => {
       quantity: i.quantity,
     }));
 
-    // Logged-in users get their email locked to their account (looked up
-    // server-side, never trusted from the client). Guests get an editable
-    // email field on the Stripe Checkout page — customer_email is simply
-    // omitted, so Stripe collects it themselves.
     let customerEmail: string | undefined;
     if (userId) {
       const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
@@ -73,6 +63,14 @@ Deno.serve(async (req) => {
         customerEmail = data.user?.email;
       }
     }
+
+    // Falls back to the original flat $8 if this session was somehow
+    // created without going through the rate-quote step (e.g. an older
+    // client, or a direct API call) — keeps this function safe on its own.
+    const shippingLabel = shippingRate?.service
+      ? `${shippingRate.carrier} ${shippingRate.service}`
+      : "Standard Shipping";
+    const shippingAmount = Math.round((shippingRate?.rate ?? 8) * 100);
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -84,13 +82,13 @@ Deno.serve(async (req) => {
         {
           shipping_rate_data: {
             type: "fixed_amount",
-            fixed_amount: { amount: 800, currency: "usd" },
-            display_name: "Standard Shipping",
+            fixed_amount: { amount: shippingAmount, currency: "usd" },
+            display_name: shippingLabel,
           },
         },
       ],
-      client_reference_id: userId || undefined, // links session to a logged-in user, omitted for guests
-      customer_email: customerEmail, // locked for logged-in users, editable for guests
+      client_reference_id: userId || undefined,
+      customer_email: customerEmail,
       metadata: {
         items: JSON.stringify(itemsSnapshot),
       },

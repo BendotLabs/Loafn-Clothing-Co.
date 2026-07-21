@@ -1,12 +1,14 @@
 import { useCart } from "../context/CartContext";
 
-const SHIPPING_FLAT_RATE = 8;
 const TAX_RATE = 0.0825; // placeholder rate — swap for real tax calc later
 
-export default function OrderSummary() {
+// `shippingCost` is optional — before a rate is calculated, OrderSummary
+// still renders with shipping omitted from the total, so it can be reused
+// unchanged as the address-collection step's cart preview.
+export default function OrderSummary({ shippingCost = null }) {
   const { items, totalPrice } = useCart();
 
-  const shipping = items.length > 0 ? SHIPPING_FLAT_RATE : 0;
+  const shipping = shippingCost ?? 0;
   const tax = totalPrice * TAX_RATE;
   const grandTotal = totalPrice + shipping + tax;
 
@@ -42,7 +44,7 @@ export default function OrderSummary() {
 
       <div className="mt-6 flex flex-col gap-2 border-t border-bone-dim/10 pt-4 font-mono text-sm">
         <Row label="Subtotal" value={totalPrice} />
-        <Row label="Shipping" value={shipping} />
+        {shippingCost !== null && <Row label="Shipping" value={shipping} />}
         <Row label="Tax" value={tax} />
         <div className="mt-2 flex items-center justify-between border-t border-bone-dim/10 pt-3 text-base text-bone">
           <span className="uppercase tracking-widest">Total</span>

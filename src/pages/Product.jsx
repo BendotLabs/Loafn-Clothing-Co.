@@ -144,7 +144,7 @@ function ProductDetail({ product }) {
         {/* Add to cart */}
         <button
           disabled={!canAddToCart}
-          onClick={() => addToCart(product, { color, size, quantity: 1 })}
+          onClick={() => addToCart(product, { color, size, quantity: 1, availableStock: currentStock ?? infinity })}
           className="mt-10 w-full border border-brass py-4 font-mono text-xs uppercase tracking-widest text-bone transition-colors hover:bg-brass hover:text-ink disabled:cursor-not-allowed disabled:border-bone-dim/20 disabled:text-bone-dim/40 disabled:hover:bg-transparent md:w-auto md:px-10"
         >
           {!size ? "Select a Size" : currentStock === 0 ? "Out of Stock" : "Add to Cart"}

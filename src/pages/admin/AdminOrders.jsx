@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchAllOrders, updateOrderStatus } from "../../lib/adminOrders";
+import { generateShippingLabel } from "../../lib/adminShipping";
 
-// "completed" reflects payment success (set by the Stripe webhook) —
-// everything after that is fulfillment state, which is manual until
-// Phase 13 wires up real shipping/tracking.
 const STATUSES = ["completed", "processing", "shipped", "delivered", "cancelled"];
 
 export default function AdminOrders() {
@@ -12,6 +10,8 @@ export default function AdminOrders() {
   const [error, setError] = useState("");
   const [expandedId, setExpandedId] = useState(null);
   const [savingId, setSavingId] = useState(null);
+  const [labelLoadingId, setLabelLoadingId] = useState(null);
+  const [labelError, setLabelError] = useState("");
 
   useEffect(() => {
     load();
@@ -38,6 +38,35 @@ export default function AdminOrders() {
     );
   }
 
+  async function handleGenerateLabel(orderId) {
+    setLabelLoadingId(orderId);
+    setLabelError("");
+    try {
+      const result = await generateShippingLabel(orderId);
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId
+            ? {
+                ...o,
+                tracking_number: result.trackingNumber,
+                tracking_carrier: result.carrier,
+                label_url: result.labelUrl,
+                shipping_status: "label_created",
+              }
+            : o
+        )
+      );
+    } catch (err) {
+      // Expected failure mode right now: EasyPost isn't connected yet
+      // (503 from generate-shipping-label). Surfaced inline per-order
+      // rather than the page-level error banner, since it's specific
+      // to this action, not a data-loading failure.
+      setLabelError(err.message);
+    } finally {
+      setLabelLoadingId(null);
+    }
+  }
+
   if (loading) {
     return <p className="font-mono text-xs text-bone-dim">Loading orders...</p>;
   }
@@ -62,6 +91,7 @@ export default function AdminOrders() {
               <th className="py-3 pr-4">Date</th>
               <th className="py-3 pr-4">Total</th>
               <th className="py-3 pr-4">Status</th>
+              <th className="py-3 pr-4">Shipping</th>
               <th className="py-3 pr-4"></th>
             </tr>
           </thead>
@@ -93,6 +123,17 @@ export default function AdminOrders() {
                       ))}
                     </select>
                   </td>
+                  <td className="py-3 pr-4 font-mono text-xs">
+                    {order.tracking_number ? (
+                      <span className="text-brass-light">
+                        {order.tracking_carrier} &middot; {order.tracking_number}
+                      </span>
+                    ) : (
+                      <span className="text-bone-dim/40 uppercase tracking-widest">
+                        No label
+                      </span>
+                    )}
+                  </td>
                   <td className="py-3 pr-4 text-right">
                     <button
                       onClick={() =>
@@ -106,7 +147,7 @@ export default function AdminOrders() {
                 </tr>
                 {expandedId === order.id && (
                   <tr className="border-b border-bone-dim/10">
-                    <td colSpan={6} className="bg-bone-dim/5 px-4 py-4">
+                    <td colSpan={7} className="bg-bone-dim/5 px-4 py-4">
                       <table className="w-full text-left text-xs">
                         <thead>
                           <tr className="font-mono uppercase tracking-widest text-bone-dim/60">
@@ -131,6 +172,30 @@ export default function AdminOrders() {
                           ))}
                         </tbody>
                       </table>
+
+                      <div className="mt-4 flex items-center gap-4 border-t border-bone-dim/10 pt-4">
+                        {order.label_url ? (
+                          <a
+                            href={order.label_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-mono text-xs uppercase tracking-widest text-brass-light hover:text-brass"
+                          >
+                            View Label
+                          </a>
+                        ) : (
+                          <button
+                            onClick={() => handleGenerateLabel(order.id)}
+                            disabled={labelLoadingId === order.id}
+                            className="border border-brass px-4 py-2 font-mono text-xs uppercase tracking-widest text-bone transition-colors hover:bg-brass hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {labelLoadingId === order.id ? "Generating..." : "Generate Label"}
+                          </button>
+                        )}
+                        {labelError && expandedId === order.id && (
+                          <p className="font-mono text-xs text-clay">{labelError}</p>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 )}

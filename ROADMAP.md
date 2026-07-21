@@ -132,17 +132,19 @@ stand right now and pointers for picking up each phase.
 - [x] **Step 53** — Out-of-stock handling.
 - [x] **Step 54** — Low-stock indicators.
 
+*Bonus: atomic stock decrement on purchase, wired through the Stripe webhook and confirmed working*
+
 **RETURN TO STEP 48**
 
 **Success Condition:** Inventory behaves like a real clothing business.
 
 ## PHASE 13 — Shipping
 
-- [ ] **Step 55** — Shipping zones.
-- [ ] **Step 56** — Shipping rate calculation.
-- [ ] **Step 57** — Shipping API integration.
-- [ ] **Step 58** — Generate shipping labels
-- [ ] **Step 59** — Tracking numbers.
+- [o] **Step 55** — Shipping zones. *done, shipping_origin table live*
+- [o] **Step 56** — Shipping rate calculation. *done, tested working end-to-end with fallback rates*
+- [o] **Step 57** — Shipping API integration. *done, real EasyPost call written and correctly gated behind the key*
+- [o] **Step 58** — Generate shipping labels *scaffolded and wired through the full stack (button → lib → Edge Function → DB), correctly refuses until the key exists*
+- [o] **Step 59** — Tracking numbers. *same, tracking_number/tracking_carrier/label_url columns exist and display correctly once populated*
 
 **RETURN TO STEP 44**
 

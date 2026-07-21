@@ -65,6 +65,48 @@ Deno.serve(async (req) => {
 
       const { error: itemsError } = await supabaseAdmin.from("order_items").insert(orderItems);
       if (itemsError) console.error("Failed to insert order items:", itemsError);
+
+      // Decrement stock for each line item. Order items only carry the
+      // product slug (that's what the cart/checkout metadata has), so we
+      // resolve slug -> product_id first, then decrement per (color, size).
+      // Wrapped in try/catch per item so one bad/missing variant doesn't
+      // block stock updates for the rest of the order.
+      const slugs = [...new Set(items.map((item: any) => item.slug))];
+      const { data: products, error: productsError } = await supabaseAdmin
+        .from("products")
+        .select("id, slug")
+        .in("slug", slugs);
+
+      if (productsError) {
+        console.error("Failed to resolve product ids for stock decrement:", productsError);
+      } else {
+        const slugToId = new Map(products.map((p: any) => [p.slug, p.id]));
+
+        for (const item of items) {
+          const productId = slugToId.get(item.slug);
+          if (!productId) {
+            console.error(`No product found for slug "${item.slug}" — skipping stock decrement`);
+            continue;
+          }
+
+          try {
+            const { data, error } = await supabaseAdmin.rpc("decrement_variant_stock", {
+              p_product_id: productId,
+              p_color: item.color,
+              p_size: item.size,
+              p_qty: item.quantity,
+            });
+
+            if (error) {
+              console.error(`Stock decrement RPC failed for ${item.slug} (${item.color}/${item.size}):`, error);
+            } else if (!data?.[0]?.found) {
+              console.error(`No variant row for ${item.slug} (${item.color}/${item.size}) — stock not decremented`);
+            }
+          } catch (err) {
+            console.error(`Stock decrement threw for ${item.slug} (${item.color}/${item.size}):`, err);
+          }
+        }
+      }
     }
 
     // Fire the order confirmation email. Wrapped so a Resend/email failure
